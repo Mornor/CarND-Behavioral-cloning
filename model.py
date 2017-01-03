@@ -26,42 +26,50 @@ def load_data():
 		data = np.array([row for row in reader])
 	return data
 
+# Flip image and inverse the steering angle
+def generate_more_data(img, steering_angle):
+	print(img.size[0])
+	print(img.size[1])
+
+
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
-# TODO size down image by 2, reducing the number of pixels by 4
+# Size down image by 2, reducing the number of pixels by 4 or to 32 * 16
 def process_img(img):
+	img = img[::5,::20].copy()
 	return img/127.5 - 1.
 
 # Process images from input
 def process_image(data):
-	# Load the images into np array
-	center_images = np.zeros((len(data), 160, 320, 3), dtype=float)
-	left_images = np.zeros((len(data), 160, 320, 3), dtype=float)
-	right_images = np.zeros((len(data), 160, 320, 3), dtype=float)
-	for i in range(8000, len(data)):
+	# Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
+	center_images = np.zeros((len(data), 32, 16, 3), dtype=float)
+	left_images = np.zeros((len(data), 32, 16, 3), dtype=float)
+	right_images = np.zeros((len(data), 32, 16, 3), dtype=float)
+	for i in range(7900, len(data)):
 		center_images[i] = process_img(mpimg.imread(data[:,0][i].strip()))
 		left_images[i] = process_img(mpimg.imread(data[:,1][i].strip()))
 		right_images[i] = process_img(mpimg.imread(data[:,2][i].strip()))
 	
-	print(center_images[0].shape)
-	print(left_images[0].shape)
-	print(right_images[0].shape)
+	#print(center_images.shape)
 	#test_images = np.array([mpimg.imread(path_folder + "/" + file) for file in filenames])
+	return center_images, left_images, right_images
 
 # Split data into training, normalization and test set
 def split_input(X, y):
 	X_train, X_val, y_train, y_val = cross_validation.train_test_split(X, y, test_size=0.1)
-	print(X_train.shape)
-	print(y_train.shape)
-	print(X_val.shape)
-	print(y_val.shape)
+	#print(X_train.shape)
+	#print(y_train.shape)
+	#print(X_val.shape)
+	#print(y_val.shape)
 	return X_train, y_train, X_val, y_val
 
-def get_next_batch(x, y, batch_size):
-    batch_mask = np.random.choice(len(x), size=batch_size, replace=False)
-    x_train = x[batch_mask,:,:]
-    y_train = y[batch_mask,:] 
-    return x_train, y_train
+def get_next_batch(X, y, batch_size):
+	batch_mask = np.random.choice(len(X), size=batch_size, replace=False)
+	print(batch_mask)
+	X_train = X[batch_mask,:,:]
+	y_train = y[batch_mask]
+	print(X_train.shape)
+	return X_train, y_train
 
 # Save the model under ./model.json, as well as the weights under ./model.h5
 def save_model(model):
@@ -70,14 +78,15 @@ def save_model(model):
 	with open('./model.h5', 'w') as outfile:
 		model.save_weights('model.h5')
 
-def train():
- 	model.fit_generator(
- 		gen_batches(X_train, y_train, FLAGS.batch_size),
-        len(X_train),
-        FLAGS.num_epochs,
-        validation_data=gen_batches(X_val, y_val, FLAGS.batch_size),
-        nb_val_samples=len(X_val)
-    )
+def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
+	model.fit_generator(
+		get_next_batch(X_train, y_train, batch_size),
+		len(X_train),
+		nb_epoch,
+		validation_data=get_next_batch(X_val, y_val, batch_size),
+		nb_val_samples=len(X_val)
+	)
+	return model
 
 
 # Use the model defined in Commai following repo:
@@ -90,17 +99,17 @@ def train():
 def get_model():
 
 	model = Sequential()
-	inp = Input(shape=(40,160,3))
 
-	# 1st Layer: normalized Layer
-	model.add(Convolution2D(16, 8, 8, subsample=(4, 4), border_mode="same", activation='relu'))
+	# 1st Layer: Normalized Layer
+	model.add(Convolution2D(32, 3, 3, input_shape=(32, 16, 3), border_mode="same", activation='relu'))
 
-	# Convolutional Layers
-	model.add(Convolution2D(32, 5, 5, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(32, 5, 5, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(32, 5, 5, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same", activation='relu'))
-	model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same", activation='relu'))
+	# Convolutional Layers, stride of 3*3 everywhere
+	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Dropout(0.5))
+	#model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same", activation='relu'))
+	#model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same", activation='relu'))
 
 	# 7th Layer: Flatten Layer
 	model.add(Flatten())
@@ -122,8 +131,12 @@ def get_model():
 # Load Data
 data = load_data()
 # Pre-Process data
-process_image(data)
+center_images, left_images, right_images = process_image(data)
 # Split data into training, test and validation set
+X_train, y_train, X_val, y_val = split_input(center_images, data[:,3])
 # Get the model
+model = get_model()
 # Train the model
+trained_model = train(model, X_train, y_train, X_val, y_val, 32, 2)
 # Save it
+save_model(trained_model)
