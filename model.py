@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.image as mpimg
 from sklearn import cross_validation
 from keras.models import Sequential, model_from_json
-from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
+from keras.layers import Dense, Dropout, Flatten, Lambda
 from keras.layers.convolutional import Convolution2D
 
 # Usefull constants
@@ -34,7 +34,7 @@ def generate_more_data(img, steering_angle):
 
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
-# Size down image by 2, reducing the number of pixels by 4 or to 32 * 16
+# Scale down image to 32 * 16
 def process_img(img):
 	img = img[::5,::20].copy()
 	return img/127.5 - 1.
@@ -64,12 +64,11 @@ def split_input(X, y):
 	return X_train, y_train, X_val, y_val
 
 def get_next_batch(X, y, batch_size):
-	batch_mask = np.random.choice(len(X), size=batch_size, replace=False)
-	print(batch_mask)
-	X_train = X[batch_mask,:,:]
-	y_train = y[batch_mask]
-	print(X_train.shape)
-	return X_train, y_train
+	while(True):
+		batch_mask = np.random.choice(len(X), size=batch_size, replace=False)
+		X_train = X[batch_mask,:,:]
+		y_train = y[batch_mask]
+		yield X_train, y_train
 
 # Save the model under ./model.json, as well as the weights under ./model.h5
 def save_model(model):
@@ -108,8 +107,7 @@ def get_model():
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Dropout(0.5))
-	#model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same", activation='relu'))
-	#model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same", activation='relu'))
+	model.add(Convolution2D(512, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 
 	# 7th Layer: Flatten Layer
 	model.add(Flatten())
@@ -133,10 +131,11 @@ data = load_data()
 # Pre-Process data
 center_images, left_images, right_images = process_image(data)
 # Split data into training, test and validation set
-X_train, y_train, X_val, y_val = split_input(center_images, data[:,3])
+y_data = np.array(data[:,3], dtype=float)
+X_train, y_train, X_val, y_val = split_input(center_images, y_data)
 # Get the model
 model = get_model()
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 32, 2)
+trained_model = train(model, X_train, y_train, X_val, y_val, 32, 10)
 # Save it
 save_model(trained_model)
