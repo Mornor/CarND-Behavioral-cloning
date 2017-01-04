@@ -1,12 +1,12 @@
 import argparse
 import base64
 import json
-
 import numpy as np
 import socketio
 import eventlet
 import eventlet.wsgi
 import time
+import utils
 from PIL import Image
 from PIL import ImageOps
 from flask import Flask, render_template
@@ -25,6 +25,7 @@ app = Flask(__name__)
 model = None
 prev_image_array = None
 
+
 @sio.on('telemetry')
 def telemetry(sid, data):
     # The current steering angle of the car
@@ -38,6 +39,7 @@ def telemetry(sid, data):
     image = Image.open(BytesIO(base64.b64decode(imgString)))
     image_array = np.asarray(image)
     transformed_image_array = image_array[None, :, :, :]
+    #transformed_image_array = transformed_image_array[::10,::10].copy()
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(transformed_image_array, batch_size=1))
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
