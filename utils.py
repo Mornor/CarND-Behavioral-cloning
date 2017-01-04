@@ -1,5 +1,6 @@
-import numpy as np
 import csv
+import json
+import numpy as np
 import matplotlib.image as mpimg
 
 # Usefull constants
@@ -10,7 +11,6 @@ DATA_PATH = "driving_log.csv"
 # Left image: np.array(csv[:,1])
 # Right image: np.array(csv[:,2])
 # Sterring angle: np.array(csv[:,3], dtype=float)
-# (160, 320, 3)
 def load_data():
 	with open(DATA_PATH, 'r') as file:
 		reader = csv.reader(file)
@@ -21,21 +21,64 @@ def load_data():
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
 # Scale down image to 32 * 16 (from 160, 320, 3)
-def process_img(img):
+def process_img(img, nvidia=False):
+	if(nvidia): # Reisize to fit Nvidia model
+		img = np.resize(img, (66, 200, 3))
+		return img/127.5 - 1.
 	img = img[::10,::10].copy()
 	return img/127.5 - 1.
 
+# Will 'split' the data to obtain the following structure
+# center_image, steering_angle_1
+# left_image, steering_angle_1 + 0.25
+# right_image, steering_angle_1 - 0.25
+def split_input(data):
+	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
+
+	for i in range(0, len(data)):
+		path_center_images = np.array(data[:,0][i].strip())
+		path_left_images = np.array(data[:,1][i].strip())
+		path_right_images = np.array(data[:,2][i].strip())
+		steering_angle = np.array(data[:,3][i], dtype=float)
+		new_row_center = [path_center_images, steering_angle]
+		new_row_left = [path_left_images, steering_angle+0.25]
+		new_row_right = [path_right_images, steering_angle-0.25]
+		new_data = np.vstack([new_data, new_row_center])
+		new_data = np.vstack([new_data, new_row_left])
+		new_data = np.vstack([new_data, new_row_right])
+
+	# Save as expanded_driving_log.csv	(just in case)
+	np.savetxt("expanded_driving_log.csv", new_data, delimiter=", ", fmt="%s")
+	return new_data
+
+# Save the model under ./model.json, as well as the weights under ./model.h5
+def save_model(model):
+	with open('./model.json', 'w') as outfile:
+		json.dump(model.to_json(), outfile)
+	with open('./model.h5', 'w') as outfile:
+		model.save_weights('model.h5')
+
 # Process images from input
-def process_images(data):
-	# Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-	center_images = np.zeros((len(data), 16, 32, 3), dtype=float)
-	left_images = np.zeros((len(data), 16, 32, 3), dtype=float)
-	right_images = np.zeros((len(data), 16, 32, 3), dtype=float)
-	for i in range(8000, len(data)):
-		center_images[i] = process_img(mpimg.imread(data[:,0][i].strip()))
-		left_images[i] = process_img(mpimg.imread(data[:,1][i].strip()))
-		right_images[i] = process_img(mpimg.imread(data[:,2][i].strip()))
+def process_images(data, nvidia=False):
+	print(data.shape) # (24108, 2)
 	
-	#print(center_images.shape)
+	if(nvidia): # Fit Nvidia model input image
+		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
+
+	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
+		test_images = np.zeros((len(data), 16, 32, 3), dtype=float)
+	
+	for i in range(0, len(data)):
+		if(i == 12000):
+			print("Half images have been processed")
+		test_images[i] = process_img(mpimg.imread(data[:,0][i]), nvidia)
+	#print(test_images[0].shape) #(16, 32, 3)
+	#print(test_images.shape) # (len(trainind_set), 16, 32, 3)
+
 	#test_images = np.array([mpimg.imread(path_folder + "/" + file) for file in filenames])
-	return center_images, left_images, right_images
+	return test_images
+
+# test_images[i] = process_img(mpimg.imread(data[:,0][i]), nvidia)
+#  File "//anaconda/envs/python3/lib/python3.5/site-packages/matplotlib/image.py", line 1328, in imread
+#    return handler(fname)
+# TypeError: Object does not appear to be a 8-bit string path or a Python file-like object
