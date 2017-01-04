@@ -26,7 +26,7 @@ def process_img(img):
 	return img/127.5 - 1.
 
 # Process images from input
-def process_image(data):
+def process_images(data):
 	# Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
 	center_images = np.zeros((len(data), 16, 32, 3), dtype=float)
 	left_images = np.zeros((len(data), 16, 32, 3), dtype=float)

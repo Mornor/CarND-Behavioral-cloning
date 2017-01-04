@@ -89,7 +89,7 @@ def get_model():
 # Load Data
 data = utils.load_data()
 # Pre-Process data
-center_images, left_images, right_images = utils.process_image(data)
+center_images, left_images, right_images = utils.process_images(data)
 # Split data into training, test and validation set
 y_data = np.array(data[:,3], dtype=float)
 X_train, y_train, X_val, y_val = split_input(center_images, y_data)
