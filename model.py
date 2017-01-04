@@ -34,18 +34,18 @@ def generate_more_data(img, steering_angle):
 
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
-# Scale down image to 32 * 16
+# Scale down image to 32 * 16 (from 160, 320, 3)
 def process_img(img):
-	img = img[::5,::20].copy()
+	img = img[::10,::10].copy()
 	return img/127.5 - 1.
 
 # Process images from input
 def process_image(data):
 	# Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-	center_images = np.zeros((len(data), 32, 16, 3), dtype=float)
-	left_images = np.zeros((len(data), 32, 16, 3), dtype=float)
-	right_images = np.zeros((len(data), 32, 16, 3), dtype=float)
-	for i in range(7900, len(data)):
+	center_images = np.zeros((len(data), 16, 32, 3), dtype=float)
+	left_images = np.zeros((len(data), 16, 32, 3), dtype=float)
+	right_images = np.zeros((len(data), 16, 32, 3), dtype=float)
+	for i in range(8000, len(data)):
 		center_images[i] = process_img(mpimg.imread(data[:,0][i].strip()))
 		left_images[i] = process_img(mpimg.imread(data[:,1][i].strip()))
 		right_images[i] = process_img(mpimg.imread(data[:,2][i].strip()))
@@ -100,14 +100,14 @@ def get_model():
 	model = Sequential()
 
 	# 1st Layer: Normalized Layer
-	model.add(Convolution2D(32, 3, 3, input_shape=(32, 16, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
 
 	# Convolutional Layers, stride of 3*3 everywhere
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Dropout(0.5))
-	model.add(Convolution2D(512, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	#model.add(Convolution2D(512, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 
 	# 7th Layer: Flatten Layer
 	model.add(Flatten())
@@ -122,7 +122,7 @@ def get_model():
 	model.add(Dense(1))
 
 	# Use the Adam optimizer to optimize the mean squared error
-	model.compile(optimizer="adam", loss="mse")	
+	model.compile(optimizer="adam", loss="mse", lr=0.0001)	
 
 	return model
 
@@ -136,6 +136,6 @@ X_train, y_train, X_val, y_val = split_input(center_images, y_data)
 # Get the model
 model = get_model()
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 32, 10)
+trained_model = train(model, X_train, y_train, X_val, y_val, 452, 2) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 save_model(trained_model)
