@@ -60,7 +60,6 @@ def save_model(model):
 
 # Process images from input
 def process_images(data, nvidia=False):
-	print(data.shape) # (24108, 2)
 	
 	if(nvidia): # Fit Nvidia model input image
 		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
@@ -72,13 +71,6 @@ def process_images(data, nvidia=False):
 		if(i == 12000):
 			print("Half images have been processed")
 		test_images[i] = process_img(mpimg.imread(data[:,0][i]), nvidia)
-	#print(test_images[0].shape) #(16, 32, 3)
-	#print(test_images.shape) # (len(trainind_set), 16, 32, 3)
-
+	
 	#test_images = np.array([mpimg.imread(path_folder + "/" + file) for file in filenames])
 	return test_images
-
-# test_images[i] = process_img(mpimg.imread(data[:,0][i]), nvidia)
-#  File "//anaconda/envs/python3/lib/python3.5/site-packages/matplotlib/image.py", line 1328, in imread
-#    return handler(fname)
-# TypeError: Object does not appear to be a 8-bit string path or a Python file-like object
