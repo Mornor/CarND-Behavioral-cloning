@@ -52,8 +52,8 @@ def get_model(nvidia=False):
 		model.add(Convolution2D(48, 3, 3, subsample=(5, 5), border_mode="same", activation='relu'))
 		model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 		model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+		model.add(Dropout(0.5))
 		model.add(Flatten())
-		model.add(Dense(1164))
 		model.add(Dense(100))
 		model.add(Dense(50))
 		model.add(Dense(10))
@@ -67,8 +67,8 @@ def get_model(nvidia=False):
 	# Convolutional Layers, stride of 3*3 everywhere
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Dropout(0.5))
+	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 
 	# 7th Layer: Flatten Layer
 	model.add(Flatten())
@@ -77,6 +77,8 @@ def get_model(nvidia=False):
 	model.add(Dense(1024))
 	model.add(Dense(512))
 	model.add(Dense(128))
+	model.add(Dense(64))
+	model.add(Dropout(0.5))
 
 	# Final layer
 	model.add(Dense(1))
@@ -88,8 +90,10 @@ def get_model(nvidia=False):
 
 # Load Data
 data = utils.load_data()
-# Generate more data
+# Split to have left, right and center images with the corresponding steering angle
 data = utils.split_input(data)
+# Genererate more data
+data = utils.flip_center_images(data)
 # Pre-Process data
 test_images = utils.process_images(data, nvidia=False)
 # Split data into training, test and validation set

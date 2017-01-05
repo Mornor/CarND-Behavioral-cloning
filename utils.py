@@ -2,6 +2,7 @@ import csv
 import json
 import numpy as np
 import matplotlib.image as mpimg
+from PIL import Image
 
 # Usefull constants
 DATA_PATH = "driving_log.csv"
@@ -35,7 +36,7 @@ def process_img(img, nvidia=False):
 def split_input(data):
 	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
 
-	for i in range(0, len(data)):
+	for i in range(8000, len(data)):
 		path_center_images = np.array(data[:,0][i].strip())
 		path_left_images = np.array(data[:,1][i].strip())
 		path_right_images = np.array(data[:,2][i].strip())
@@ -47,8 +48,6 @@ def split_input(data):
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
 
-	# Save as expanded_driving_log.csv	(just in case)
-	np.savetxt("expanded_driving_log.csv", new_data, delimiter=", ", fmt="%s")
 	return new_data
 
 # Save the model under ./model.json, as well as the weights under ./model.h5
@@ -57,6 +56,30 @@ def save_model(model):
 		json.dump(model.to_json(), outfile)
 	with open('./model.h5', 'w') as outfile:
 		model.save_weights('model.h5')
+
+# Flip image horizontally
+def flip_img(img_path):
+	img_to_flip = Image.open(img_path)
+	flipped_img = img_to_flip.transpose(Image.FLIP_LEFT_RIGHT)
+	return flipped_img
+
+# Flip center images and inverse the steering angle. 
+# Also, avoid bias to the left (since the track mostly turn to left direction)
+def flip_center_images(data):
+	new_data = np.copy(data)
+	for i in range(0, len(data)):
+		if("center" in data[:,0][i]):
+			flipped_img = flip_img(data[:,0][i]) # Flip the image
+			new_image_name = data[:,0][i][:-4] + "_flipped.jpg"	
+			flipped_img.save(new_image_name) # Save the image 
+			steering_angle = float(data[:,1][i])
+			if(steering_angle != 0.0):
+				steering_angle = 1.0 / steering_angle # Inverse the steering angle
+			new_data = np.vstack([new_data, [new_image_name, steering_angle]]) # Append the new image to the already-present
+	
+	# Save as expanded_driving_log.csv	(just in case)
+	np.savetxt("expanded_driving_log.csv", new_data, delimiter=", ", fmt="%s")
+	return new_data
 
 # Process images from input
 def process_images(data, nvidia=False):
