@@ -36,14 +36,14 @@ def process_img(img, nvidia=False):
 def split_input(data):
 	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
 
-	for i in range(8000, len(data)):
+	for i in range(0, len(data)):
 		path_center_images = np.array(data[:,0][i].strip())
 		path_left_images = np.array(data[:,1][i].strip())
 		path_right_images = np.array(data[:,2][i].strip())
 		steering_angle = np.array(data[:,3][i], dtype=float)
 		new_row_center = [path_center_images, steering_angle]
-		new_row_left = [path_left_images, steering_angle+0.25]
-		new_row_right = [path_right_images, steering_angle-0.25]
+		new_row_left = [path_left_images, steering_angle+0.10]
+		new_row_right = [path_right_images, steering_angle-0.10]
 		new_data = np.vstack([new_data, new_row_center])
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
@@ -97,3 +97,4 @@ def process_images(data, nvidia=False):
 	
 	#test_images = np.array([mpimg.imread(path_folder + "/" + file) for file in filenames])
 	return test_images
+# wget https://d17h27t6h515a5.cloudfront.net/topher/2016/December/584f6edd_data/data.zip

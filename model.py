@@ -14,7 +14,7 @@ def split_into_sets(X, y):
 	X_train, X_val, y_train, y_val = cross_validation.train_test_split(X, y, test_size=0.1)
 	#print(X.shape)
 	#print(y.shape)
-	#print(X_train.shape)
+	print(X_train.shape)
 	#print(y_train.shape)
 	#print(X_val.shape)
 	#print(y_val.shape)
@@ -29,7 +29,7 @@ def get_next_batch(X, y, batch_size):
 
 def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 	model.fit_generator(
-		get_next_batch(X_train, y_train, batch_size),
+		generator=get_next_batch(X_train, y_train, batch_size),
 		samples_per_epoch=batch_size,
 		nb_epoch=nb_epoch,
 		validation_data=get_next_batch(X_val, y_val, batch_size),
@@ -42,7 +42,7 @@ def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 def get_model(nvidia=False):
 
 	model = Sequential()
-	adam = Adam(lr=0.0001)
+	adam = Adam(lr=0.000001)
 
 	# Nvidia model
 	if(nvidia):
@@ -67,7 +67,6 @@ def get_model(nvidia=False):
 	# Convolutional Layers, stride of 3*3 everywhere
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Dropout(0.5))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 
 	# 7th Layer: Flatten Layer
@@ -102,6 +101,6 @@ X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
 model = get_model(nvidia=False)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 1669, 10) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 512, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)
