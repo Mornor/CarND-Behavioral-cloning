@@ -5,7 +5,7 @@ import utils
 import numpy as np
 from sklearn import cross_validation
 from keras.models import Sequential, model_from_json
-from keras.layers import Dense, Dropout, Flatten, Lambda
+from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
 from keras.layers.convolutional import Convolution2D
 from keras.optimizers import Adam
 
@@ -42,7 +42,7 @@ def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 def get_model(nvidia=False):
 
 	model = Sequential()
-	adam = Adam(lr=0.00000001)
+	adam = Adam(lr=0.001)
 
 	# Nvidia model
 	if(nvidia):
@@ -61,21 +61,16 @@ def get_model(nvidia=False):
 		model.compile(optimizer=adam, loss="mse")
 		return model
 
-	# Convolutional Layers, stride of 3*3 everywhere
-	model.add(Convolution2D(32, 3, 3, input_shape=(32, 16, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Dropout(0.5))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-
-	# 7th Layer: Flatten Layer
+	model.add(Dropout(0.5))
 	model.add(Flatten())
-
-	# Fully Connected Layers
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dense(512, activation='relu'))
 	model.add(Dense(128, activation='relu'))
-
-	# Final layer
 	model.add(Dense(1))
 
 	# Use the Adam optimizer to optimize the mean squared error
@@ -92,13 +87,13 @@ data = utils.flip_center_images(data)
 # Randomly Shuffle data
 np.random.shuffle(data)
 # Pre-Process data
-test_images = utils.process_images(data, nvidia=False)
+test_images = utils.process_images(data, nvidia=True)
 # Split data into training, test and validation set
 y_data = np.array(data[:,1], dtype=float)
 X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
-model = get_model(nvidia=False)
+model = get_model(nvidia=True)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 512, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 1024, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)

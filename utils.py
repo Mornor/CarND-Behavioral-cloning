@@ -42,8 +42,8 @@ def split_input(data):
 		path_right_images = np.array(data[:,2][i].strip())
 		steering_angle = np.array(data[:,3][i], dtype=float)
 		new_row_center = [path_center_images, steering_angle]
-		new_row_left = [path_left_images, steering_angle+0.08]
-		new_row_right = [path_right_images, steering_angle-0.08]
+		new_row_left = [path_left_images, steering_angle+0.2]
+		new_row_right = [path_right_images, steering_angle-0.2]
 		new_data = np.vstack([new_data, new_row_center])
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
@@ -74,7 +74,7 @@ def flip_center_images(data):
 			flipped_img.save(new_image_name) # Save the image 
 			steering_angle = float(data[:,1][i])
 			if(steering_angle != 0.0):
-				steering_angle = 1.0 / steering_angle # Inverse the steering angle
+				steering_angle = -steering_angle # Inverse the steering angle
 			new_data = np.vstack([new_data, [new_image_name, steering_angle]]) # Append the new image to the already-present
 	
 	# Save as expanded_driving_log.csv	(just in case)
