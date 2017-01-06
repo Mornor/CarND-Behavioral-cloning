@@ -42,7 +42,7 @@ def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 def get_model(nvidia=False):
 
 	model = Sequential()
-	adam = Adam(lr=0.000001)
+	adam = Adam(lr=0.00000001)
 
 	# Nvidia model
 	if(nvidia):
@@ -61,10 +61,8 @@ def get_model(nvidia=False):
 		model.compile(optimizer=adam, loss="mse")
 		return model
 
-	# 1st Layer: Normalized Layer
-	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
-
 	# Convolutional Layers, stride of 3*3 everywhere
+	model.add(Convolution2D(32, 3, 3, input_shape=(32, 16, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
@@ -73,11 +71,9 @@ def get_model(nvidia=False):
 	model.add(Flatten())
 
 	# Fully Connected Layers
-	model.add(Dense(1024))
-	model.add(Dense(512))
-	model.add(Dense(128))
-	model.add(Dense(64))
-	model.add(Dropout(0.5))
+	model.add(Dense(1024, activation='relu'))
+	model.add(Dense(512, activation='relu'))
+	model.add(Dense(128, activation='relu'))
 
 	# Final layer
 	model.add(Dense(1))
@@ -93,6 +89,8 @@ data = utils.load_data()
 data = utils.split_input(data)
 # Genererate more data
 data = utils.flip_center_images(data)
+# Randomly Shuffle data
+np.random.shuffle(data)
 # Pre-Process data
 test_images = utils.process_images(data, nvidia=False)
 # Split data into training, test and validation set
