@@ -62,7 +62,8 @@ def get_model(nvidia=False):
 		model.compile(optimizer=adam, loss="mse")
 		return model
 
-		
+
+	'''		
 	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(32, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
@@ -78,9 +79,9 @@ def get_model(nvidia=False):
 	model.add(Dense(1))
 	'''
 
-	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(32, 3, 3, input_shape=(32, 64, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	#model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
+	model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
 	model.add(Dropout(0.5))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
@@ -90,7 +91,7 @@ def get_model(nvidia=False):
 	model.add(Dense(512, activation='relu'))
 	model.add(Dense(128, activation='relu'))
 	model.add(Dense(1))
-	''' 
+	
 	# Use the Adam optimizer to optimize the mean squared error
 	model.compile(optimizer=adam, loss="mse")	
 
@@ -112,6 +113,6 @@ X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
 model = get_model(nvidia=False)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 256, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 512, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)

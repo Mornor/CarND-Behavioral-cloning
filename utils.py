@@ -26,7 +26,7 @@ def process_img(img, nvidia=False):
 	if(nvidia): # Reisize to fit Nvidia model
 		img = np.resize(img, (66, 200, 3))
 		return img/127.5 - 1.
-	img = img[::10,::10].copy()
+	img = img[::5,::5].copy()
 	return img/127.5 - 1.
 
 # Will 'split' the data to obtain the following structure
@@ -88,7 +88,7 @@ def process_images(data, nvidia=False):
 		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
 
 	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-		test_images = np.zeros((len(data), 16, 32, 3), dtype=float)
+		test_images = np.zeros((len(data), 32, 64, 3), dtype=float)
 	
 	for i in range(0, len(data)):
 		if(i == 12000):
