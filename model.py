@@ -88,7 +88,7 @@ def get_model(nvidia=False):
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dense(512, activation='relu'))
 	model.add(Dense(128, activation='relu'))
-	model.add(Dense(1, activation='tanh'))
+	model.add(Dense(1))
 	
 	# Use the Adam optimizer to optimize the mean squared error
 	model.compile(optimizer=adam, loss="mse")	
@@ -111,6 +111,6 @@ X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
 model = get_model(nvidia=False)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 512, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 512, 10) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)
