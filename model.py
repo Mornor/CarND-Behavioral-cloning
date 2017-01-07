@@ -3,7 +3,6 @@ import os
 import argparse
 import utils
 import numpy as np
-#from sklearn import cross_validationi
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
@@ -12,7 +11,7 @@ from keras.optimizers import Adam
 
 # Split data into training, normalization and test set
 def split_into_sets(X, y):
-	X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
+	X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.01)
 	#print(X.shape)
 	#print(y.shape)
 	print(X_train.shape)
@@ -43,7 +42,7 @@ def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 def get_model(nvidia=False):
 
 	model = Sequential()
-	adam = Adam(lr=0.001)
+	adam = Adam(lr=0.0001)
 
 	# Nvidia model
 	if(nvidia):
@@ -78,10 +77,9 @@ def get_model(nvidia=False):
 	model.add(Dense(128, activation='relu'))
 	model.add(Dense(1))
 	'''
-	'''
+	
 	model.add(Convolution2D(32, 3, 3, input_shape=(32, 64, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
 	model.add(Dropout(0.5))
 	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
@@ -90,21 +88,7 @@ def get_model(nvidia=False):
 	model.add(Dense(1024, activation='relu'))
 	model.add(Dense(512, activation='relu'))
 	model.add(Dense(128, activation='relu'))
-	model.add(Dense(1))
-	'''
-
-	model.add(Convolution2D(16, 8, 8, input_shape=(32, 64, 3), subsample=(4, 4), border_mode="same"))
-	model.add(ELU())
-	model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same"))
-	model.add(ELU())
-	model.add(Convolution2D(64, 5, 5, subsample=(2, 2), border_mode="same"))
-	model.add(Flatten())
-	model.add(Dropout(.2))
-	model.add(ELU())
-	model.add(Dense(512))
-	model.add(Dropout(.5))
-	model.add(ELU())
-	model.add(Dense(1))
+	model.add(Dense(1, activation='tanh'))
 	
 	# Use the Adam optimizer to optimize the mean squared error
 	model.compile(optimizer=adam, loss="mse")	
