@@ -26,7 +26,7 @@ def process_img(img, nvidia=False):
 	if(nvidia): # Reisize to fit Nvidia model
 		img = np.resize(img, (66, 200, 3))
 		return img/127.5 - 1.
-	img = img[::2,::2].copy()
+	img = img[::5,::5].copy()
 	return img/127.5 - 1.
 
 # Will 'split' the data to obtain the following structure
