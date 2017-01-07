@@ -116,7 +116,7 @@ data = utils.split_input(data)
 # Genererate more data
 data = utils.flip_center_images(data)
 # Randomly Shuffle data
-np.random.shuffle(data)
+# np.random.shuffle(data)
 # Pre-Process data
 test_images = utils.process_images(data, nvidia=False)
 # Split data into training, test and validation set
@@ -125,6 +125,6 @@ X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
 model = get_model(nvidia=False)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 2046, 10) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 2046, 15) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)
