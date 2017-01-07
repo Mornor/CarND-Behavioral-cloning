@@ -11,7 +11,7 @@ from keras.optimizers import Adam
 
 # Split data into training, normalization and test set
 def split_into_sets(X, y):
-	X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.01)
+	X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
 	#print(X.shape)
 	#print(y.shape)
 	print(X_train.shape)
