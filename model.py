@@ -3,7 +3,8 @@ import os
 import argparse
 import utils
 import numpy as np
-from sklearn import cross_validation
+#from sklearn import cross_validationi
+from sklearn.model_selection import train_test_split
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
 from keras.layers.convolutional import Convolution2D
@@ -11,7 +12,7 @@ from keras.optimizers import Adam
 
 # Split data into training, normalization and test set
 def split_into_sets(X, y):
-	X_train, X_val, y_train, y_val = cross_validation.train_test_split(X, y, test_size=0.1)
+	X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
 	#print(X.shape)
 	#print(y.shape)
 	print(X_train.shape)
@@ -104,13 +105,13 @@ data = utils.flip_center_images(data)
 # Randomly Shuffle data
 np.random.shuffle(data)
 # Pre-Process data
-test_images = utils.process_images(data, nvidia=True)
+test_images = utils.process_images(data, nvidia=False)
 # Split data into training, test and validation set
 y_data = np.array(data[:,1], dtype=float)
 X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
-model = get_model(nvidia=True)
+model = get_model(nvidia=False)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 1024, 30) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 256, 20) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)
