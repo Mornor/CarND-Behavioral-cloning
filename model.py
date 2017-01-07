@@ -62,7 +62,7 @@ def get_model(nvidia=False):
 		model.compile(optimizer=adam, loss="mse")
 		return model
 
-	'''	
+		
 	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(32, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
@@ -90,7 +90,7 @@ def get_model(nvidia=False):
 	model.add(Dense(512, activation='relu'))
 	model.add(Dense(128, activation='relu'))
 	model.add(Dense(1))
-
+	''' 
 	# Use the Adam optimizer to optimize the mean squared error
 	model.compile(optimizer=adam, loss="mse")	
 
