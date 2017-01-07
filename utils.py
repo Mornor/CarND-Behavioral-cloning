@@ -88,7 +88,7 @@ def process_images(data, nvidia=False):
 		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
 
 	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-		test_images = np.zeros((len(data), 80, 160, 3), dtype=float)
+		test_images = np.zeros((len(data), 32, 64, 3), dtype=float)
 	
 	for i in range(0, len(data)):
 		if(i == 12000):
