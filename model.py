@@ -91,7 +91,7 @@ def get_model(nvidia=False):
 	model.add(Dense(1))
 	'''
 
-	model.add(Convolution2D(16, 8, 8, input_shape=(32, 64, 3), subsample=(4, 4), border_mode="same"))
+	model.add(Convolution2D(16, 8, 8, input_shape=(80, 160, 3), subsample=(4, 4), border_mode="same"))
 	model.add(ELU())
 	model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same"))
 	model.add(ELU())
