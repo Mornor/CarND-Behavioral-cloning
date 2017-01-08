@@ -42,8 +42,8 @@ def split_input(data):
 		path_right_images = np.array(data[:,2][i].strip())
 		steering_angle = np.array(data[:,3][i], dtype=float)
 		new_row_center = [path_center_images, steering_angle]
-		new_row_left = [path_left_images, steering_angle+0.13]
-		new_row_right = [path_right_images, steering_angle-0.13]
+		new_row_left = [path_left_images, steering_angle+0.15]
+		new_row_right = [path_right_images, steering_angle-0.15]
 		new_data = np.vstack([new_data, new_row_center])
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
