@@ -42,11 +42,11 @@ def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 def get_model(nvidia=False):
 
 	model = Sequential()
-	adam = Adam(lr=0.0001)
+	adam = Adam(lr=0.001)
 
 	# Nvidia model
 	if(nvidia):
-		model.add(Convolution2D(66, 3, 3, input_shape=(66, 200, 3), border_mode="same", activation='relu'))
+		model.add(Convolution2D(66, 3, 3, input_shape=(160, 320, 3), border_mode="same", activation='relu'))
 		model.add(Convolution2D(24, 3, 3, subsample=(5, 5), border_mode="same", activation='relu'))
 		model.add(Convolution2D(36, 3, 3, subsample=(5, 5), border_mode="same", activation='relu'))
 		model.add(Convolution2D(48, 3, 3, subsample=(5, 5), border_mode="same", activation='relu'))
@@ -91,7 +91,7 @@ def get_model(nvidia=False):
 	model.add(Dense(1))
 	'''
 
-	model.add(Convolution2D(16, 8, 8, input_shape=(32, 64, 3), subsample=(4, 4), border_mode="same"))
+	model.add(Convolution2D(16, 8, 8, input_shape=(16, 32, 3), subsample=(4, 4), border_mode="same"))
 	model.add(ELU())
 	model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same"))
 	model.add(ELU())

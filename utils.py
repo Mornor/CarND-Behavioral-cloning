@@ -26,7 +26,7 @@ def process_img(img, nvidia=False):
 	if(nvidia): # Reisize to fit Nvidia model
 		img = np.resize(img, (66, 200, 3))
 		return img/127.5 - 1.
-	img = img[::5,::5].copy()
+	img = img[::10,::10].copy()
 	return img/127.5 - 1.
 
 # Will 'split' the data to obtain the following structure
@@ -42,8 +42,8 @@ def split_input(data):
 		path_right_images = np.array(data[:,2][i].strip())
 		steering_angle = np.array(data[:,3][i], dtype=float)
 		new_row_center = [path_center_images, steering_angle]
-		new_row_left = [path_left_images, steering_angle+0.27]
-		new_row_right = [path_right_images, steering_angle-0.27]
+		new_row_left = [path_left_images, steering_angle+0.15]
+		new_row_right = [path_right_images, steering_angle-0.15]
 		new_data = np.vstack([new_data, new_row_center])
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
@@ -85,13 +85,13 @@ def flip_center_images(data):
 def process_images(data, nvidia=False):
 	
 	if(nvidia): # Fit Nvidia model input image
-		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
+		test_images = np.zeros((len(data),66, 200, 3), dtype=float)
 
 	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-		test_images = np.zeros((len(data), 32, 64, 3), dtype=float)
+		test_images = np.zeros((len(data), 16, 32, 3), dtype=float)
 	
 	for i in range(0, len(data)):
-		if(i == 12000):
+		if(i == len(data)/2):
 			print("Half images have been processed")
 		test_images[i] = process_img(mpimg.imread(data[:,0][i]), nvidia)
 	
