@@ -22,7 +22,7 @@ def load_data():
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
 # Scale down image to 32 * 16 (from 160, 320, 3)
-def process_img(img, nvidia=False):
+def process_img(img, nvidia):
 	if(nvidia): # Reisize to fit Nvidia model
 		img = np.resize(img, (66, 200, 3))
 		return img/127.5 - 1.
@@ -76,7 +76,7 @@ def flip_center_images(data):
 	return new_data
 
 # Process images from input
-def process_images(data, nvidia=False):
+def process_images(data, nvidia):
 	
 	if(nvidia): # Fit Nvidia model input image
 		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
