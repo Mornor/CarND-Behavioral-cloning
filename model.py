@@ -9,6 +9,8 @@ from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
 from keras.layers.convolutional import Convolution2D
 from keras.optimizers import Adam
 
+EXPANDED_DRIVING_LOG_PATH = "expanded_driving_log.csv"
+
 # Split data into training, normalization and test set
 def split_into_sets(X, y):
 	X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1)
@@ -117,10 +119,9 @@ def get_model(nvidia):
 
 	return model
 
-# Load Data
-data = utils.load_data()
-# Split to have left, right and center images with the corresponding steering angle
-data = utils.split_input(data)
+utils.merge_csv()
+# Load csv
+data = utils.load_csv(EXPANDED_DRIVING_LOG_PATH)
 # Genererate more data
 data = utils.flip_center_images(data)
 # Randomly Shuffle data
