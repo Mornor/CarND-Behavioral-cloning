@@ -134,6 +134,6 @@ X_train, y_train, X_val, y_val = split_into_sets(test_images, y_data)
 # Get the model
 model = get_model(nvidia=False)
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 256, 5) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 1000, 5) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)
