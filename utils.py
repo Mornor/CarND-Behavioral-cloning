@@ -24,7 +24,8 @@ def load_data():
 # Scale down image to 32 * 16 (from 160, 320, 3)
 def process_img(img, nvidia):
 	if(nvidia): # Reisize to fit Nvidia model
-		img = np.resize(img, (66, 200, 3))
+		#img = np.resize(img, (66, 200, 3))
+		img = img[::5,::5].copy()
 		return img/127.5 - 1.
 	img = img[::5,::5].copy()
 	return img/127.5 - 1.
@@ -79,7 +80,7 @@ def flip_center_images(data):
 def process_images(data, nvidia):
 	
 	if(nvidia): # Fit Nvidia model input image
-		test_images = np.zeros((len(data), 66, 200, 3), dtype=float)
+		test_images = np.zeros((len(data), 32, 64, 3), dtype=float)
 
 	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
 		test_images = np.zeros((len(data), 32, 64, 3), dtype=float)

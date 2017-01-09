@@ -46,7 +46,7 @@ def get_model(nvidia):
 
 	# Nvidia model
 	if(nvidia):
-		model.add(Convolution2D(24, 5, 5, subsample=(2, 2), input_shape=(66, 200, 3), border_mode="valid"))
+		model.add(Convolution2D(24, 5, 5, subsample=(2, 2), input_shape=(32, 64, 3), border_mode="valid"))
 		model.add(ELU())
 		model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode="valid"))
 		model.add(ELU())
