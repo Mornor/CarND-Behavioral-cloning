@@ -9,6 +9,29 @@ from PIL import Image
 DATA_CSV_PATH = "udacity_data/driving_log.csv"
 DATA_DIR_PATH = "udacity_data/"
 
+# Apply random brightness on the image
+# If the image is from the center camera, flip it and inverse the angle 50% of the time.
+# Scale down the image from (160, 320, 3) to (40, 160, 3)
+# Normalize the image between -1 and 1
+def process_image(X_train):
+	# Read the image and set it to use RGB
+	result_img = cv2.imread(X_train[0])
+	result_img = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
+	# Scale down
+	result_img = scale_down(result_img)
+	# Apply random brightness
+	result_img = change_brightness_img(result_img)
+	# Flip it if necessary
+	angle = float(X_train[1])
+	if("center" in X_train[0]): 
+		prob = np.random.random()
+		if prob > 0.5: 
+			result_img = flip_img(result_img)
+			angle -= angle
+
+	return result_img, angle
+
+
 # Load the CSV names into memory as tuples
 # Center image: np.array(csv[:,0])
 # Left image: np.array(csv[:,1])
@@ -21,13 +44,14 @@ def load_data():
 		data = np.array([row for row in reader])
 	return data
 
+# Resize to (40, 160, 3)
+def scale_down(img): 
+	return cv2.resize(img, (160, 40), interpolation=cv2.INTER_AREA)
+
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
 # Scale down image to 32 * 16 (from 160, 320, 3)
-def process_img(img, nvidia=False):
-	if(nvidia): # Reisize to fit Nvidia model
-		img = np.resize(img, (66, 200, 3))
-		return img/127.5 - 1.
+def scale_and_normalize(img):
 	img = img[::4,::2].copy()
 	return img/127.5 - 1.
 
@@ -62,26 +86,7 @@ def save_model(model):
 
 # Flip image horizontally
 def flip_img(img):
-	flipped_img = img.transpose(Image.FLIP_LEFT_RIGHT)
-	return flipped_img
-
-# Flip center images and inverse the steering angle. 
-# Also, avoid bias to the left (since the track mostly turn to left direction)
-def flip_center_images(data):
-	new_data = np.copy(data)
-
-	for i in range(0, len(data)):
-		if("center" in data[:,0][i]):
-			flipped_img = flip_img(Image.open(data[:,0][i])) # Flip the image
-			new_image_name = data[:,0][i][:-4] + "_flipped.jpg"	
-			flipped_img.save(new_image_name) # Save the image 
-			steering_angle = float(data[:,1][i])
-			if(steering_angle != 0.0):
-				steering_angle = -steering_angle # Inverse the steering angle
-			new_data = np.vstack([new_data, [new_image_name, steering_angle]]) # Append the new image to the already-present
-	
-	return new_data
-
+	return cv2.flip(img, 1)
 
 def change_brightness_img(img): 
 	# Randomly select a percent change
@@ -91,39 +96,6 @@ def change_brightness_img(img):
 	hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 	hsv[:,:,2] = hsv[:,:,2] * change_pct
 
-	#Convert back to RGB and to PIL Image
+	# Convert back to RGB
 	img_bright = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
-	img_bright = Image.fromarray(img_bright)
-	return img_bright
-
-def change_brightness_images(data):
-	new_data = np.copy(data)
-
-	for i in range(0, len(data)):
-		new_img = change_brightness_img(mpimg.imread(data[:,0][i]))
-		new_image_name = data[:,0][i][:-4] + "_brightened.jpg"	
-		new_img.save(new_image_name) # Save the image 
-		steering_angle = float(data[:,1][i])
-		new_data = np.vstack([new_data, [new_image_name, steering_angle]])
-
-	np.savetxt("expanded_driving_log.csv", new_data, delimiter=", ", fmt="%s")
-	return new_data
-
-
-# Process images from input
-def process_images(data, nvidia=False):
-	
-	if(nvidia): # Fit Nvidia model input image
-		test_images = np.zeros((len(data),66, 200, 3), dtype=float)
-
-	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-		test_images = np.zeros((len(data), 40, 160, 3), dtype=float)
-	
-	for i in range(0, len(data)):
-		if(i == len(data)/2):
-			print("Half images have been processed")
-		test_images[i] = process_img(mpimg.imread(data[:,0][i]), nvidia)
-	
-	#test_images = np.array([mpimg.imread(path_folder + "/" + file) for file in filenames])
-	return test_images
-# wget https://d17h27t6h515a5.cloudfront.net/topher/2016/December/584f6edd_data/data.zip
+	return img
