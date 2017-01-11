@@ -38,7 +38,7 @@ def process_img(img, nvidia=False):
 def split_input(data):
 	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
 
-	for i in range(0, len(data)):
+	for i in range(8000, len(data)):
 		path_center_images = data[:,0][i].strip()
 		path_left_images = data[:,1][i].strip()
 		path_right_images = data[:,2][i].strip()
@@ -61,9 +61,8 @@ def save_model(model):
 		model.save_weights('model.h5')
 
 # Flip image horizontally
-def flip_img(img_path):
-	img_to_flip = Image.open(img_path)
-	flipped_img = img_to_flip.transpose(Image.FLIP_LEFT_RIGHT)
+def flip_img(img):
+	flipped_img = img.transpose(Image.FLIP_LEFT_RIGHT)
 	return flipped_img
 
 # Flip center images and inverse the steering angle. 
@@ -73,7 +72,7 @@ def flip_center_images(data):
 
 	for i in range(0, len(data)):
 		if("center" in data[:,0][i]):
-			flipped_img = flip_img(data[:,0][i]) # Flip the image
+			flipped_img = flip_img(Image.open(data[:,0][i])) # Flip the image
 			new_image_name = data[:,0][i][:-4] + "_flipped.jpg"	
 			flipped_img.save(new_image_name) # Save the image 
 			steering_angle = float(data[:,1][i])
@@ -84,14 +83,12 @@ def flip_center_images(data):
 	return new_data
 
 
-def change_brightness_img(img_path): 
-	image = mpimg.imread(img_path)
-
+def change_brightness_img(img): 
 	# Randomly select a percent change
 	change_pct = np.random.uniform(0.4, 1.2)
 
 	# Change to HSV to change the brightness V
-	hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+	hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 	hsv[:,:,2] = hsv[:,:,2] * change_pct
 
 	#Convert back to RGB and to PIL Image
@@ -103,7 +100,7 @@ def change_brightness_images(data):
 	new_data = np.copy(data)
 
 	for i in range(0, len(data)):
-		new_img = change_brightness_img(data[:,0][i])
+		new_img = change_brightness_img(mpimg.imread(data[:,0][i]))
 		new_image_name = data[:,0][i][:-4] + "_brightened.jpg"	
 		new_img.save(new_image_name) # Save the image 
 		steering_angle = float(data[:,1][i])
