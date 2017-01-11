@@ -121,6 +121,7 @@ def get_model():
 data = utils.load_data()
 # Split to have left, right and center images with the corresponding steering angle
 data = utils.split_input(data)
+data = utils.flip_images(data)
 # Randomly Shuffle data
 np.random.shuffle(data)
 # Split data into training, test and validation set
@@ -129,6 +130,6 @@ X_train, y_train, X_val, y_val = split_into_sets(data, y_data)
 # Get the model
 model = get_model()
 # Train the model
-trained_model = train(model, X_train, y_train, X_val, y_val, 1000, 5) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
+trained_model = train(model, X_train, y_train, X_val, y_val, 6000, 5) # To do: handle the case where the batch_size (sample_per_epochs) is not a factor of len(data)
 # Save it
 utils.save_model(trained_model)
