@@ -1,11 +1,13 @@
 import csv
 import json
+import cv2
 import numpy as np
 import matplotlib.image as mpimg
 from PIL import Image
 
 # Usefull constants
-DATA_PATH = "driving_log.csv"
+DATA_CSV_PATH = "udacity_data/driving_log.csv"
+DATA_DIR_PATH = "udacity_data/"
 
 # Load the CSV names into memory as tuples
 # Center image: np.array(csv[:,0])
@@ -13,7 +15,7 @@ DATA_PATH = "driving_log.csv"
 # Right image: np.array(csv[:,2])
 # Sterring angle: np.array(csv[:,3], dtype=float)
 def load_data():
-	with open(DATA_PATH, 'r') as file:
+	with open(DATA_CSV_PATH, 'r') as file:
 		reader = csv.reader(file)
 		file.readline() # Skip headers
 		data = np.array([row for row in reader])
@@ -26,7 +28,7 @@ def process_img(img, nvidia=False):
 	if(nvidia): # Reisize to fit Nvidia model
 		img = np.resize(img, (66, 200, 3))
 		return img/127.5 - 1.
-	img = img[::10,::10].copy()
+	img = img[::4,::2].copy()
 	return img/127.5 - 1.
 
 # Will 'split' the data to obtain the following structure
@@ -37,17 +39,18 @@ def split_input(data):
 	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
 
 	for i in range(0, len(data)):
-		path_center_images = np.array(data[:,0][i].strip())
-		path_left_images = np.array(data[:,1][i].strip())
-		path_right_images = np.array(data[:,2][i].strip())
-		steering_angle = np.array(data[:,3][i], dtype=float)
-		new_row_center = [path_center_images, steering_angle]
-		new_row_left = [path_left_images, steering_angle+0.15]
-		new_row_right = [path_right_images, steering_angle-0.15]
+		path_center_images = data[:,0][i].strip()
+		path_left_images = data[:,1][i].strip()
+		path_right_images = data[:,2][i].strip()
+		steering_angle = float(data[:,3][i])
+		new_row_center = [DATA_DIR_PATH + path_center_images, steering_angle]
+		new_row_left = [DATA_DIR_PATH + path_left_images, steering_angle+0.15]
+		new_row_right = [DATA_DIR_PATH + path_right_images, steering_angle-0.15]
 		new_data = np.vstack([new_data, new_row_center])
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
 
+	np.savetxt("expanded_driving_log.csv", new_data, delimiter=", ", fmt="%s")
 	return new_data
 
 # Save the model under ./model.json, as well as the weights under ./model.h5
@@ -67,6 +70,7 @@ def flip_img(img_path):
 # Also, avoid bias to the left (since the track mostly turn to left direction)
 def flip_center_images(data):
 	new_data = np.copy(data)
+
 	for i in range(0, len(data)):
 		if("center" in data[:,0][i]):
 			flipped_img = flip_img(data[:,0][i]) # Flip the image
@@ -77,9 +81,37 @@ def flip_center_images(data):
 				steering_angle = -steering_angle # Inverse the steering angle
 			new_data = np.vstack([new_data, [new_image_name, steering_angle]]) # Append the new image to the already-present
 	
-	# Save as expanded_driving_log.csv	(just in case)
+	return new_data
+
+
+def change_brightness_img(img_path): 
+	image = mpimg.imread(img_path)
+
+	# Randomly select a percent change
+	change_pct = np.random.uniform(0.4, 1.2)
+
+	# Change to HSV to change the brightness V
+	hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+	hsv[:,:,2] = hsv[:,:,2] * change_pct
+
+	#Convert back to RGB and to PIL Image
+	img_bright = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+	img_bright = Image.fromarray(img_bright)
+	return img_bright
+
+def change_brightness_images(data):
+	new_data = np.copy(data)
+
+	for i in range(0, len(data)):
+		new_img = change_brightness_img(data[:,0][i])
+		new_image_name = data[:,0][i][:-4] + "_brightened.jpg"	
+		new_img.save(new_image_name) # Save the image 
+		steering_angle = float(data[:,1][i])
+		new_data = np.vstack([new_data, [new_image_name, steering_angle]])
+
 	np.savetxt("expanded_driving_log.csv", new_data, delimiter=", ", fmt="%s")
 	return new_data
+
 
 # Process images from input
 def process_images(data, nvidia=False):
@@ -88,7 +120,7 @@ def process_images(data, nvidia=False):
 		test_images = np.zeros((len(data),66, 200, 3), dtype=float)
 
 	else: # Load the images into np array of shape (len(data), original_height/5, original_width/20, original_channel)
-		test_images = np.zeros((len(data), 16, 32, 3), dtype=float)
+		test_images = np.zeros((len(data), 40, 160, 3), dtype=float)
 	
 	for i in range(0, len(data)):
 		if(i == len(data)/2):

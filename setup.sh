@@ -7,5 +7,8 @@ wget https://d17h27t6h515a5.cloudfront.net/topher/2016/December/584f6edd_data/da
 # Unzip it
 unzip data.zip
 
+# Cleanup
+rm -rf data.zip
+
 # Move to current folder 
-mv data/*
+mv data/ udacity_data/

@@ -1,4 +1,6 @@
 *.app
 __MACOSX/*
 data/*
+udacity_data/*
 *.zip
+__pycache__/*
