@@ -9,7 +9,13 @@ unzip data.zip
 
 # Cleanup
 rm -rf data.zip
+<<<<<<< HEAD
 rm -rf __MACOSX
 
 # Move to current folder 
 mv data/ udacity_data/
+=======
+
+# Move to current folder 
+mv data/ udacity_data/
+>>>>>>> AWS

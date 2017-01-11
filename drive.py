@@ -38,16 +38,19 @@ def telemetry(sid, data):
     # The current image from the center camera of the car
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
+    
+    test_image = image.convert('RGB')
     image_array = np.asarray(image)
     transformed_image_array = image_array[None, :, :, :]
     #print(transformed_image_array.shape) #(1, 160, 320, 3)
     transformed_image_array = transformed_image_array.reshape(transformed_image_array.shape[1:]) # Get the following shape (160, 320, 3) instead of (1, 160, 320, 3)
-    test_image = utils.process_img(transformed_image_array, nvidia=False)
+    test_image = utils.scale_down(transformed_image_array)
+    
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     test_image = test_image[np.newaxis,:] # Add one dimension to get (1, :, :, :)
     steering_angle = float(model.predict(test_image, batch_size=1))
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
-    throttle = 0.2
+    throttle = 0.15
     print(steering_angle, throttle)
     send_control(steering_angle, throttle)
 

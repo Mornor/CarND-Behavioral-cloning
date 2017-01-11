@@ -1,4 +1,7 @@
 *.app
 __MACOSX/*
 data/*
+udacity_data/*
 *.zip
+__pycache__/*
+expanded_driving_log.csv
