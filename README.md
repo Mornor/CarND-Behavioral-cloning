@@ -18,12 +18,12 @@ An example of the different point of view recorded by the cameras can be found b
 ### Data pre-processing and augmentation
 <ul>
 	<li><b>1. Split the driving_log.csv</b></li> 
-	The <i>driving_log.csv</i> contains 3 images for one steering angle. Its shape is then `(nb_rows, 6)`. I transformed it to have only the path of the image mapped with the corresponding angle (adapted if left or right image). The new shape is then `(3*nb_rows, 2)`. <br/>
+	The <i>driving_log.csv</i> contains 3 images for one steering angle. Its shape is then `(nb_rows, 6)`. I transformed it to have only the path of the image mapped with the corresponding angle (adapted if left or right image). The new shape is then `(3*nb_rows, 2)`. <br/> <br/>
 	<li><b>2. Scale down</b></li> 
 	All of the the image is not neccesary to predict the angle. I only need to see the road, as well as the sides of the road. Besides, I needed to scale down the images to fit the input shape of my Deep Neural Network. The original image is of shape `(160, 320, 3)`, which I will scale down to (`66, 220, 3`). Here, 66 is the height of the image, 220 the width and 3 the channel. 
-	It is also important to notice that scaling down the image allow less computation. <br/>
+	It is also important to notice that scaling down the image allow less computation. <br/> <br/>
 	<li><b>3. Brightness</b></li> 
-	I apply a random brightness to the image. This in order to train the model on images captured from different lighting condition.<br/>
+	I apply a random brightness to the image. This in order to train the model on images captured from different lighting condition.<br/> <br/>
 	<li><b>4. Flipping</b></li> 
 	The track contains a lot more left turns than right turns. This induces a bias to the left and the model may not behave well because of this. Indeed, it might not know how to turn to the right since there are very few pictures with a right turn. To counter-balance this, I flip the center image 50% of the time while training. Of course the angle is inversed. 
 </ul>
@@ -44,6 +44,7 @@ Once the computation done, I tested it locally and if the results was better tha
 	<li><b>Architecture</b></li> 
 	I struggled fo a long time (almost 2 weeks) before choosing the right architecture for my Deep Neural Network.
 	My first try was the following: 
+
 	```
 	model.add(Convolution2D(32, 3, 3, input_shape=(32, 64, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
@@ -57,7 +58,9 @@ Once the computation done, I tested it locally and if the results was better tha
 	model.add(Dense(128, activation='relu'))
 	model.add(Dense(1))
 	```
+	
 	Which did not work out well. I then try to add some more layers: 
+	
 	```
 	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
 	model.add(Convolution2D(32, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
@@ -73,6 +76,7 @@ Once the computation done, I tested it locally and if the results was better tha
 	model.add(Dense(128, activation='relu'))
 	model.add(Dense(1))
 	```
+
 	That did not work well either. <br>
 	I then decided to use the open source work from [commai](https://github.com/commaai/research/blob/master/train_steering_model.py) which **did** give way better results, but not good enough in my case. I finally adopted the architecture described above. <br/>
 	
