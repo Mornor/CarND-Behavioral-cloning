@@ -24,10 +24,8 @@ def process_image(X_train):
 	# Flip it if necessary
 	angle = float(X_train[1])
 	if("center" in X_train[0]): 
-		prob = np.random.random()
-		if prob > 0.5: 
-			result_img = flip_img(result_img)
-			angle -= angle
+		if np.random.randint(2) == 1:
+			result_img, angle = flip_img(result_img, angle)
 
 	return result_img, angle
 
@@ -46,7 +44,19 @@ def load_data():
 
 # Resize to (40, 160, 3)
 def scale_down(img): 
-	return cv2.resize(img, (160, 40), interpolation=cv2.INTER_AREA)
+	 # Proportionally get lower half portion of the image
+    nrow, ncol, nchannel = img.shape
+    
+    start_row = int(nrow * 0.35)
+    end_row = int(nrow * 0.875)   
+    
+    ## This removes most of the sky and small amount below including the hood
+    img_no_sky = img[start_row:end_row, :]
+
+    # This resizes to 66 x 220 for NVIDIA's model
+    new_img = cv2.resize(img_no_sky, (220,66), interpolation=cv2.INTER_AREA)
+    return new_img
+	#return cv2.resize(img, (160, 40), interpolation=cv2.INTER_AREA)
 
 # Process a single image
 # Normalize data from 0-255 to -1 - 1
@@ -62,14 +72,14 @@ def scale_and_normalize(img):
 def split_input(data):
 	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
 
-	for i in range(8000, len(data)):
+	for i in range(0, len(data)):
 		path_center_images = data[:,0][i].strip()
 		path_left_images = data[:,1][i].strip()
 		path_right_images = data[:,2][i].strip()
 		steering_angle = float(data[:,3][i])
 		new_row_center = [DATA_DIR_PATH + path_center_images, steering_angle]
-		new_row_left = [DATA_DIR_PATH + path_left_images, steering_angle+0.15]
-		new_row_right = [DATA_DIR_PATH + path_right_images, steering_angle-0.15]
+		new_row_left = [DATA_DIR_PATH + path_left_images, steering_angle+0.2]
+		new_row_right = [DATA_DIR_PATH + path_right_images, steering_angle-0.2]
 		new_data = np.vstack([new_data, new_row_center])
 		new_data = np.vstack([new_data, new_row_left])
 		new_data = np.vstack([new_data, new_row_right])
@@ -84,9 +94,9 @@ def save_model(model):
 	with open('./model.h5', 'w') as outfile:
 		model.save_weights('model.h5')
 
-# Flip image horizontally
-def flip_img(img):
-	return cv2.flip(img, 1)
+# Flip image horizontally and inverse angle
+def flip_img(img, angle):
+	return cv2.flip(img, 1), -angle
 
 def change_brightness_img(img): 
 	# Randomly select a percent change

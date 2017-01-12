@@ -40,7 +40,7 @@ def telemetry(sid, data):
     image = Image.open(BytesIO(base64.b64decode(imgString)))
     
     test_image = image.convert('RGB')
-    image_array = np.asarray(image)
+    image_array = np.asarray(test_image)
     transformed_image_array = image_array[None, :, :, :]
     #print(transformed_image_array.shape) #(1, 160, 320, 3)
     transformed_image_array = transformed_image_array.reshape(transformed_image_array.shape[1:]) # Get the following shape (160, 320, 3) instead of (1, 160, 320, 3)
