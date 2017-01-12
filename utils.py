@@ -43,20 +43,13 @@ def load_data():
 	return data
 
 # Resize to (40, 160, 3)
-def scale_down(img): 
-	 # Proportionally get lower half portion of the image
+def scale_down(img):
     nrow, ncol, nchannel = img.shape
-    
     start_row = int(nrow * 0.35)
     end_row = int(nrow * 0.875)   
-    
-    ## This removes most of the sky and small amount below including the hood
     img_no_sky = img[start_row:end_row, :]
-
-    # This resizes to 66 x 220 for NVIDIA's model
     new_img = cv2.resize(img_no_sky, (220,66), interpolation=cv2.INTER_AREA)
     return new_img
-	#return cv2.resize(img, (160, 40), interpolation=cv2.INTER_AREA)
 
 # Process a single image
 # Normalize data from 0-255 to -1 - 1

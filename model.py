@@ -75,54 +75,6 @@ def get_model():
 	model.add(ELU())
 	model.add(Dense(1, init='he_normal'))
 	
-
-
-	'''		
-	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(32, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(128, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(256, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-	model.add(Flatten())
-	model.add(Dense(1024, activation='relu'))
-	model.add(Dense(512, activation='relu'))
-	model.add(Dense(128, activation='relu'))
-	model.add(Dense(1))
-	'''
-
-	'''
-	model.add(Convolution2D(32, 3, 3, input_shape=(32, 64, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Dropout(0.5))
-	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-	model.add(Dropout(0.5))
-	model.add(Flatten())
-	model.add(Dense(1024, activation='relu'))
-	model.add(Dense(512, activation='relu'))
-	model.add(Dense(128, activation='relu'))
-	model.add(Dense(1))
-	'''
-
-	'''
-	model.add(Lambda(lambda x: x/127.5 - 1., input_shape=(40, 160, 3), output_shape=(40, 160, 3)))
-	model.add(Convolution2D(16, 8, 8, subsample=(4, 4), border_mode="same"))
-	model.add(ELU())
-	model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same"))
-	model.add(ELU())
-	model.add(Convolution2D(64, 5, 5, subsample=(2, 2), border_mode="same"))
-	model.add(Flatten())
-	model.add(Dropout(.2))
-	model.add(ELU())
-	model.add(Dense(512))
-	model.add(Dropout(.5))
-	model.add(ELU())
-	model.add(Dense(1))
-	'''
-	
 	# Use the Adam optimizer to optimize the mean squared error
 	model.compile(optimizer=adam, loss="mse")	
 
