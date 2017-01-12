@@ -38,7 +38,7 @@ def get_next_batch(X_train, y_train, batch_size):
 def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
 	model.fit_generator(
 		generator=get_next_batch(X_train, y_train, batch_size),
-		samples_per_epoch=12000,
+		samples_per_epoch=20000,
 		nb_epoch=nb_epoch,
 		validation_data=get_next_batch(X_val, y_val, batch_size),
 		nb_val_samples=len(X_val)
