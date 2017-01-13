@@ -10,10 +10,10 @@ By doing that, the Network is then able to drive the car itself around the circu
 ### Data collection
 The simulator is provided with a <i>training mode</i> allowing us to record data while driving the car around the track. The issue here is that I was only able to use a keyboard to drive the car, which caused a lot of noise. The Udacity team has been king enough to provide us a clean dataset. <br/>
 A row from the dataset (<i>driving_log.csv</i>) contains the path of the left, right and center images mapped with the steering angle.<br/>
-<center>[](readme_imgs/driving_log.png)</center>
+<center><img src="readme_imgs/driving_log.png"></center>
 Regarding the left and right images, we need to change the original steering angle. The basic idea here is to find the angle which would be necessary to apply to the steering wheel to be centered on the image, starting from the left or right image. <br>
 An example of the different point of view recorded by the cameras can be found below.
-[left_image](readme_imgs/left_pov.jpg) [center_image](readme_imgs/center_pov.jpg) [right_image](readme_imgs/right_pov.jpg)
+<img src="readme_imgs/left_pov.jpg"> <img src="readme_imgs/center_pov.jpg"> <img src="readme_imgs/right_pov.jpg">
 
 ### Data pre-processing and augmentation
 <ul>
@@ -31,8 +31,7 @@ An example of the different point of view recorded by the cameras can be found b
 
 ### Deep Neural Network architecture
 I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia.
-Here, make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. I also add some Droput layers to avoid over-fitting.
-[](readme_imgs/network.png). 
+Here, make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. I also add some Droput layers to avoid over-fitting<img src="readme_imgs/network.png">
 
 
 ### Workflow and use of AWS
