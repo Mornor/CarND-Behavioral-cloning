@@ -30,13 +30,15 @@ An example of the different point of view recorded by the cameras can be found b
 
 
 ### Deep Neural Network architecture
-I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia. The only difference is that my input shape is (66, 220, 3) instead of (66, 200, 3). The benefits of this is that the images contains the borders of the road. As you will see in the Architecture section, this model has been proved to give the best results. Indeed, the commai model demanded too much data, and thus didn't give probant results.  
+I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia. The only difference is that my input shape is (66, 220, 3) instead of (66, 200, 3). The benefits of this is that the images contains the borders of the road. As you will see in the Architecture section, this model has been proved to give the best results. Indeed, the commai model demanded too much data, and thus didn't give probant results.  <br>
+A Droput() with a keep_prob of 0.5 has been added after the second Convolutional Layer to avoid over-fitting. <br>
 Here, make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. I also add some Droput layers to avoid over-fitting<img src="readme_imgs/network.png">
 
 ### EarlyStopping and ModelCheckpoint 
 I use the help of the Keras callback in order to make the computation more efficient. <br>
 [EarlyStopping](https://keras.io/callbacks/#earlystopping) will stop the iteration if the `val_loss` of the model does not get higher than 0.0001 after 2 Epochs. That means the model is already well optimised and there is no need to do more iterations. <br>
-[ModelCheckpoint](https://keras.io/callbacks/#modelcheckpoint) will store the weights of the best model only. The weights of the others model are discarded. 
+[ModelCheckpoint](https://keras.io/callbacks/#modelcheckpoint) will store the weights of the best model only. The weights of the others model are discarded.  <br>
+The use of these 2 callbacks is an efficient way to be sure that the best model along with the best weights is returned. 
 
 ### Workflow and use of AWS
 I use Amazon AWS for the computation part (g2.2xlarge instance). <br>
