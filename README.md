@@ -33,6 +33,10 @@ An example of the different point of view recorded by the cameras can be found b
 I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia. The only difference is that my input shape is (66, 220, 3) instead of (66, 200, 3). The benefits of this is that the images contains the borders of the road. 
 Here, make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. I also add some Droput layers to avoid over-fitting<img src="readme_imgs/network.png">
 
+### EarlyStopping and ModelCheckpoint 
+I use the help of the Keras callback in order to make the computation more efficient. <br>
+[EarlyStopping](https://keras.io/callbacks/#earlystopping) will stop the iteration if the `val_loss` of the model does not get higher than 0.0001 after 2 Epochs. That means the model is already well optimised and there is no need to do more iterations. <br>
+[ModelCheckpoint](https://keras.io/callbacks/#modelcheckpoint) will store the weights of the best model only. The weights of the others model are discarded. 
 
 ### Workflow and use of AWS
 I use Amazon AWS for the computation part (g2.2xlarge instance). <br>
@@ -43,40 +47,40 @@ Once the computation done, I tested it locally and if the results was better tha
 	I struggled fo a long time (almost 2 weeks) before choosing the right architecture for my Deep Neural Network.
 	My first try was the following: 
 
-        ```python
-        model.add(Convolution2D(32, 3, 3, input_shape=(32, 64, 3), border_mode="same", activation='relu'))
-        model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-        model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Flatten())
-        model.add(Dense(1024, activation='relu'))
-        model.add(Dense(512, activation='relu'))
-        model.add(Dense(128, activation='relu'))
-        model.add(Dense(1))
-        ```
+    ```python
+    model.add(Convolution2D(32, 3, 3, input_shape=(32, 64, 3), border_mode="same", activation='relu'))
+    model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+    model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Flatten())
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(512, activation='relu'))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(1))
+    ```
 	
-	Which did not work out well. I then try to add some more layers: 
+Which did not work out well. I then try to add some more layers: 
 	
-		```python
-		model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
-		model.add(Convolution2D(32, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-		model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-		model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-		model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-		model.add(Convolution2D(128, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-		model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
-		model.add(Convolution2D(256, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
-		model.add(Flatten())
-		model.add(Dense(1024, activation='relu'))
-		model.add(Dense(512, activation='relu'))
-		model.add(Dense(128, activation='relu'))
-		model.add(Dense(1))
-		```
+	```python
+	model.add(Convolution2D(32, 3, 3, input_shape=(16, 32, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(32, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
+	model.add(Convolution2D(64, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
+	model.add(Convolution2D(128, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(128, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
+	model.add(Convolution2D(256, 3, 3, subsample=(3, 3), border_mode="same", activation='relu'))
+	model.add(Convolution2D(256, 3, 3, subsample=(1, 1), border_mode="same", activation='relu'))
+	model.add(Flatten())
+	model.add(Dense(1024, activation='relu'))
+	model.add(Dense(512, activation='relu'))
+	model.add(Dense(128, activation='relu'))
+	model.add(Dense(1))
+	```
 
-	That did not work well either. <br>
-	I then decided to use the open source work from [commai](https://github.com/commaai/research/blob/master/train_steering_model.py) which **did** give way better results, but not good enough in my case. I finally adopted the architecture described above. <br/> <br/>
+That did not work well either. <br>
+I then decided to use the open source work from [commai](https://github.com/commaai/research/blob/master/train_steering_model.py) which **did** give way better results, but not good enough in my case. I finally adopted the architecture described above. <br/> <br/>
 	
 <b>Angle</b> <br>
 	Fine tuning the angle to compensate the original one from the left and right images was also a difficult task. It was not possible to compute it manually and it was a game of guessing. <br>
