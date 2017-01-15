@@ -11,8 +11,6 @@ DATA_DIR_PATH = "udacity_data/"
 
 # Apply random brightness on the image
 # If the image is from the center camera, flip it and inverse the angle 50% of the time.
-# Scale down the image from (160, 320, 3) to (40, 160, 3)
-# Normalize the image between -1 and 1
 def process_image(X_train):
 	# Read the image and set it to use RGB
 	result_img = cv2.imread(X_train[0])
@@ -42,7 +40,7 @@ def load_data():
 		data = np.array([row for row in reader])
 	return data
 
-# Resize to (40, 160, 3)
+# Resize to (66, 220, 3)
 def scale_down(img):
     nrow, ncol, nchannel = img.shape
     start_row = int(nrow * 0.35)
@@ -60,8 +58,8 @@ def scale_and_normalize(img):
 
 # Will 'split' the data to obtain the following structure
 # center_image, steering_angle_1
-# left_image, steering_angle_1 + 0.25
-# right_image, steering_angle_1 - 0.25
+# left_image, steering_angle_1 + 0.2
+# right_image, steering_angle_1 - 0.2
 def split_input(data):
 	new_data = np.zeros([0, 2]) # Will be of shape(3*len(data), 2) because 3 images for one steering angle
 
@@ -84,15 +82,13 @@ def split_input(data):
 def save_model(model):
 	with open('./model.json', 'w') as outfile:
 		json.dump(model.to_json(), outfile)
-	with open('./model.h5', 'w') as outfile:
-		model.save_weights('model.h5')
 
 # Flip image horizontally and inverse angle
 def flip_img(img, angle):
 	return cv2.flip(img, 1), -angle
 
 def change_brightness_img(img): 
-	# Randomly select a percent change
+	# Randomly select a percent change (from .4 to avoid a complete black image)
 	change_pct = np.random.uniform(0.4, 1.2)
 
 	# Change to HSV to change the brightness V

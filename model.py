@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers.convolutional import Convolution2D
 from keras.optimizers import Adam
 
@@ -35,14 +36,23 @@ def get_next_batch(X_train, y_train, batch_size):
 			X_batch[i], y_batch[i] = utils.process_image(X_train[random_index])
 		yield X_batch, y_batch	
 
+# Return the best model using ModelCheckpoint callback. 
+# Stop the iterations process if val_loss has not improve more that 0.0001 after 2 Epoch. 
+# Save only the weights of the best model (see condtions above)
 def train(model, X_train, y_train, X_val, y_val, batch_size, nb_epoch):
+	# Define the used callbacks 
+	early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=2, verbose=0, mode='auto')
+	model_checkpoint = ModelCheckpoint("model.h5", monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto')
+	
 	model.fit_generator(
 		generator=get_next_batch(X_train, y_train, batch_size),
-		samples_per_epoch=20000,
+		samples_per_epoch=20224,
 		nb_epoch=nb_epoch,
 		validation_data=get_next_batch(X_val, y_val, batch_size),
-		nb_val_samples=len(X_val)
+		nb_val_samples=len(X_val),
+		callbacks=[early_stopping, model_checkpoint]
 	)
+
 	return model
 
 # Use the model defined in Commai following repo:
@@ -58,9 +68,11 @@ def get_model():
 	model.add(ELU())
 	model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode="valid", init='he_normal'))
 	model.add(ELU())
+	model.add(Dropout(0.5))
 	model.add(Convolution2D(48, 5, 5, subsample=(2, 2), border_mode="valid", init='he_normal'))
 	model.add(ELU())
 	model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init='he_normal'))
+	model.add(Dropout(0.2))
 	model.add(ELU())
 	model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init='he_normal'))
 	model.add(Flatten())
