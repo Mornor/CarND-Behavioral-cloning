@@ -30,7 +30,7 @@ An example of the different point of view recorded by the cameras can be found b
 
 
 ### Deep Neural Network architecture
-I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia. The only difference is that my input shape is (66, 220, 3) instead of (66, 200, 3). The benefits of this is that the images contains the borders of the road. 
+I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia. The only difference is that my input shape is (66, 220, 3) instead of (66, 200, 3). The benefits of this is that the images contains the borders of the road. As you will see in the Architecture section, this model has been proved to give the best results. Indeed, the commai model demanded too much data, and thus didn't give probant results.  
 Here, make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. I also add some Droput layers to avoid over-fitting<img src="readme_imgs/network.png">
 
 ### EarlyStopping and ModelCheckpoint 
