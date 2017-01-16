@@ -3,12 +3,12 @@
 ## Project: Behavioral cloning
 
 ### Overview
-This is the 3rd project of the <a href="https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013">Self Driving Car Engineer Nanodegree</a>I am taking part. <br>
-The aim of this project was to build a Deep Neural Network to clone my driving behavior while driving a car around a circuit (in a simulator). The car is equipped with virtuals cameras on the hood, the left and right of it. While driving, the simulator records the 3 images, as well as the corresponding steering angle. The nework is then feed by theses datas, and train to predict the steering angle of a given cameras. 
+This is the 3rd project of the <a href="https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013">Self Driving Car Engineer Nanodegree</a> I am taking part. <br>
+The aim of this project was to build a Deep Neural Network to clone my driving behavior while driving a car around a circuit (in a simulator). The car is equipped with virtuals cameras on the hood, the left and right of it. While driving, the simulator records the 3 images, as well as the corresponding steering angle. The nework is then fed by theses datas, and train to predict the steering angle of a given image. 
 By doing that, the Network is then able to drive the car itself around the circuit. 
 
 ### Data collection
-The simulator is provided with a <i>training mode</i> allowing us to record data while driving the car around the track. The issue here is that I was only able to use a keyboard to drive the car, which caused a lot of noise. The Udacity team has been king enough to provide us a clean dataset. <br/>
+The simulator is provided with a <i>training mode</i> allowing us to record data while driving the car around the track. The issue here is that I was only able to use a keyboard to drive the car, which caused a lot of noise. The Udacity team has been kind enough to provide us a clean dataset. <br/>
 A row from the dataset (<i>driving_log.csv</i>) contains the path of the left, right and center images mapped with the steering angle.<br/>
 <center><img src="readme_imgs/driving_log.png"></center>
 Regarding the left and right images, we need to change the original steering angle. The basic idea here is to find the angle which would be necessary to apply to the steering wheel to be centered on the image, starting from the left or right image. <br>
@@ -20,22 +20,22 @@ An example of the different point of view recorded by the cameras can be found b
 	<li><b>Split the driving_log.csv</b></li> 
 	The <i>driving_log.csv</i> contains 3 images for one steering angle. Its shape is then `(nb_rows, 6)`. I transformed it to have only the path of the image mapped with the corresponding angle (adapted if left or right image). The new shape is then `(3*nb_rows, 2)`. <br/> <br/>
 	<li><b>Scale down</b></li> 
-	All of the the image is not neccesary to predict the angle. I only need to see the road, as well as the sides of the road. Besides, I needed to scale down the images to fit the input shape of my Deep Neural Network. The original image is of shape `(160, 320, 3)`, which I will scale down to (`66, 220, 3`). Here, 66 is the height of the image, 220 the width and 3 the channel. 
+	The whole size of the the image is not neccesary to predict the angle. I only needed to see the road, as well as the sides of it. Besides, I needed to scale down the images to fit the input shape of my Deep Neural Network. The original image is of shape `(160, 320, 3)`, which I scaled down to (`66, 220, 3`). Here, 66 is the height of the image, 220 the width and 3 the channel. 
 	It is also important to notice that scaling down the image allow less computation. <br/> <br/>
 	<li><b>Brightness</b></li> 
-	I apply a random brightness to the image. This in order to train the model on images captured from different lighting condition.<br/> <br/>
+	I applied a random brightness to the image. This in order to train the model on images captured from different lighting condition.<br/> <br/>
 	<li><b>4. Flipping</b></li> 
-	The track contains a lot more left turns than right turns. This induces a bias to the left and the model may not behave well because of this. Indeed, it might not know how to turn to the right since there are very few pictures with a right turn. To counter-balance this, I flip the center image 50% of the time while training. Of course the angle is inversed. 
+	The track contains a lot more left turns than right turns. This induces a bias to the left and the model may not behave well because of this. Indeed, it might not know how to turn to the right since there are very few pictures with a right turn. To counter-balance this, I flipped the center image 50% of the time while training. Of course the angle is inversed. 
 </ul>
 
 
 ### Deep Neural Network architecture
 I have decided to follow the architecture described in this excellent [paper](https://arxiv.org/pdf/1604.07316v1.pdf) from Nvidia. The only difference is that my input shape is (66, 220, 3) instead of (66, 200, 3). The benefits of this is that the images contains the borders of the road. As you will see in the Architecture section, this model has been proved to give the best results. Indeed, the commai model demanded too much data, and thus didn't give probant results.  <br>
-A Droput() with a keep_prob of 0.5 has been added after the second Convolutional Layer to avoid over-fitting. <br>
-Here, make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. I also add some Droput layers to avoid over-fitting<img src="readme_imgs/network.png">
+A Dropout() with a keep_prob of 0.5 has been added after the second Convolutional Layer to avoid over-fitting. <br>
+Here, it make sense to use Convolutional Layer, because they are very efficient at recognizing shapes. <img src="readme_imgs/network.png">
 
 ### EarlyStopping and ModelCheckpoint 
-I use the help of the Keras callback in order to make the computation more efficient. <br>
+I used Keras callback in order to make the computation more efficient. <br>
 [EarlyStopping](https://keras.io/callbacks/#earlystopping) will stop the iteration if the `val_loss` of the model does not get higher than 0.0001 after 2 Epochs. That means the model is already well optimised and there is no need to do more iterations. <br>
 [ModelCheckpoint](https://keras.io/callbacks/#modelcheckpoint) will store the weights of the best model only. The weights of the others model are discarded.  <br>
 The use of these 2 callbacks is an efficient way to be sure that the best model along with the best weights is returned. 
@@ -84,7 +84,7 @@ I then decided to use the open source work from [commai](https://github.com/comm
 <b>Angle</b> <br>
 	Fine tuning the angle to compensate the original one from the left and right images was also a difficult task. It was not possible to compute it manually and it was a game of guessing. <br>
 	At one point, I decided to test only on center images, as you can see in this [branch](https://github.com/Mornor/CarND-Behavioral-cloning/tree/only_center), but I didn't have enough data. I then recorded myself **recovery data** and it helped the model to behave in a better way but again, it was not sufficient to complete the whole track. <br>
-	I decided to continue to work with left and righ images.
+	I decided to continue to work with left and right images.
 
 ### Conclusion
 This project was without a doubt the most difficult so far. I started to work on it the 31st of December and finished it the 13rd of January. Overall, I spent 4 hours a week day  on it, and almost all my week-ends. <br>
